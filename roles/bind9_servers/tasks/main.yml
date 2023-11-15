@@ -1,0 +1,58 @@
+---
+# tasks file for bind9_servers
+- name: Install bind9 package.
+  ansible.builtin.apt:
+    name: "bind9"
+    cache_valid_time: 3600
+    state: present
+
+- name: Make sure there is one and only one Primary Name Server.
+  ansible.builtin.assert:
+    that: groups[bind9_servers_mname_group] | intersect(ansible_play_batch) | length == 1
+    fail_msg: "Playbook requires the '{{ bind9_servers_mname_group }}' group to contain one and only one host."
+    quiet: true
+
+- name: Make sure bind9 service is started
+  ansible.builtin.service:
+    name: bind9
+    state: started
+
+- name: Update the Bind Options file.
+  ansible.builtin.template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+  notify: Reload bind9
+
+- name: Update the Bind Local file.
+  ansible.builtin.template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+  notify: Reload bind9
+
+# Using an include here to limit the amount of output during playbook execution.
+- name: Include the primary name server tasks.
+  ansible.builtin.include_tasks: 'zone.yml'
+  loop: "{{ bind9_servers_zones }}"
+  loop_control:
+    label: "{{ zone.name }}"
+    loop_var: zone
+  when:
+    - zone.forwarders is not defined
+    - zone.primaries is not defined
+
+# Reloading the service inside the above loop doesn't work and
+# must be done before `nsupdate` will work.
+- name: Run notified handlers before attempting dynamic updates.
+  ansible.builtin.meta: flush_handlers
+
+# Using an include here for nested loops.
+- name: Include the primary name server tasks.
+  ansible.builtin.include_tasks: 'zone_updates.yml'
+  loop: "{{ bind9_servers_zones }}"
+  loop_control:
+    label: "{{ zone.name }}"
+    loop_var: zone
+  when:
+    - zone.allowed_tsig_keys is defined
+    - zone.forwarders is not defined
+    - zone.primaries is not defined

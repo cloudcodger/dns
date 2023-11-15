@@ -1,0 +1,19 @@
+---
+- name: "zone_update {{ zone.name }} : Update dynamic zone resource records using nsupdate."
+  become: false
+  community.general.nsupdate:
+    key_name: '{{ zone.name }}.key'
+    key_algorithm: "{{ bind9_servers_tsig_algorithm }}"
+    key_secret: "{{ zone_tsig_secret.stdout }}"
+    server: "{{ bind9_servers_primary_name_server_ips | first }}"
+    record: "{{ rr[0] }}"
+    ttl: "{{ omit if rr[1] | length == 0 else rr[1] }}"
+    type: "{{ rr[2] }}"
+    value: "{{ rr[3] }}"
+    zone: "{{ zone.name }}"
+  delegate_to: localhost
+  loop: "{{ vars[zone.records_var] if zone.allowed_tsig_keys is defined else [] }}"
+  vars:
+    rr: "{{ item.split(';') }}"
+  when:
+    - rr | length > 1

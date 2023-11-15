@@ -1,0 +1,17 @@
+galaxy_info:
+  author: Cloud Codger
+  description: Install and configure a set of Name Servers using bind9 a primary and zero or more secondaries.
+  license: GPL-2.0-or-later
+  min_ansible_version: '2.10'
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+
+  galaxy_tags:
+    - bind9
+    - dns
+    - infrastructure
+
+dependencies: []

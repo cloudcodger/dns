@@ -1,0 +1,24 @@
+---
+namespace: cloudcodger
+name: dns
+version: 1.0.0
+readme: README.md
+authors:
+  - Cloud Codger <cloudcodger@pm.me>
+
+description: Roles for the implementation of ISC Bind 9 as primary and secondary DNS name servers.
+
+license:
+  - GPL-2.0-or-later
+
+tags:
+  - bind9
+  - dns
+  - infrastructure
+
+dependencies: {}
+repository: https://github.com/cloudcodger/dns
+documentation: https://github.com/cloudcodger/dns
+homepage: https://github.com/cloudcodger/dns
+issues: https://github.com/cloudcodger/dns/issues
+build_ignore: []

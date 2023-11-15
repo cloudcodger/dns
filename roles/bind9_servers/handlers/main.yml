@@ -1,0 +1,6 @@
+---
+# handlers file for bind9_servers
+- name: Reload bind9
+  ansible.builtin.service:
+    name: bind9
+    state: reloaded

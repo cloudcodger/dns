@@ -103,6 +103,36 @@ Example Playbook
     - role: cloudcodger.dns.bind9_servers
 ```
 
+For a single name server (no secondaries), `bind9_servers_zones` could be set directly in the playbook or in a `host_vars` file (keeping the playbook cleaner) or in a `group_vars` file.
+For configurations with _both_ primaries and secondaries, the following setup provides different values for `bind9_servers_zones` for the primary name server and all the secondary name servers. You must pay attention to [Ansible variable precedence](https://docs.ansible.com/ansible/latest/reference_appendices/general_precedence.html) to make this work properly.
+
+Contents of `host_vars/primary_ns.yml` (assummes the Ansible host is `primary_ns` for this example):
+
+```yaml
+---
+bind9_servers_zones:
+  - name: example.com
+    records_var: zone_example_com
+
+  - name: "1.168.192.in-addr.arpa"
+    records_var: zone_192_168_1
+```
+
+The settings are for the secondary name servers in this example.
+
+Contents of `group_vars/name_server.yml`:
+
+```yaml
+bind9_servers_zones:
+  - name: example.com
+    primaries:
+      - "192.168.1.99"
+
+  - name: '1.168.192.in-addr.arpa'
+    primaries:
+      - "192.168.6.99"
+```
+
 Contents of `zone_vars/192.168.1.yml`:
 
 ```yaml

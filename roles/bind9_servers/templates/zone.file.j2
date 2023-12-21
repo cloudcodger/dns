@@ -15,9 +15,7 @@ $TTL {{ bind9_servers_zone_default_ttl }}
 
 {# Create NS records for the name servers, minus the primary name server by default. #}
 {% for ns in zone.ns | default(groups[bind9_servers_group] | sort) %}
-{%   if not bind9_servers_zone_exclude_primary or ns not in groups[bind9_servers_mname_group] %}
 			NS	{{ ns }}{{ ('.' + bind9_servers_domain_name + '.') if not ns is search("\.") }}
-{%   endif %}
 {% endfor %}
 
 {# Create all records from the resource records variable for the zone. #}

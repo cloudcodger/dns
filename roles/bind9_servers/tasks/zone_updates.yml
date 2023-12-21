@@ -1,11 +1,25 @@
 ---
+- name: "zone {{ zone.name }} : Get TSIG secrets."
+  ansible.builtin.command:
+    cmd: "sed -n 's/.*secret \"\\(.*\\)\";/\\1/p' /etc/bind/tsig.{{ zone.name }}"
+  changed_when: false
+  register: zone_tsig_secret
+  when:
+    - zone.allowed_tsig_keys is defined
+
+- name: Print the IP addresses of this host?
+  debug:
+    msg: |
+      "IP: {{ ansible_all_ipv4_addresses | first }}"
+      "key name: {{ zone.name }}.key"
+
 - name: "zone_update {{ zone.name }} : Update dynamic zone resource records using nsupdate."
   become: false
   community.general.nsupdate:
     key_name: '{{ zone.name }}.key'
     key_algorithm: "{{ bind9_servers_tsig_algorithm }}"
     key_secret: "{{ zone_tsig_secret.stdout }}"
-    server: "{{ bind9_servers_primary_name_server_ips | first }}"
+    server: "{{ ansible_all_ipv4_addresses | first }}"
     record: "{{ rr[0] }}"
     ttl: "{{ omit if rr[1] | length == 0 else rr[1] }}"
     type: "{{ rr[2] }}"

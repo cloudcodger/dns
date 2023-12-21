@@ -1,28 +1,20 @@
 ---
 # Tasks that get performed on every zone
-- name: "zone {{ zone.name }} : Check each zone with allowed_tsig_keys defined for the associated TSIG file."
+- name: "primary zone {{ zone.name }} : Check for the associated TSIG file."
   ansible.builtin.stat:
     path: "/etc/bind/tsig.{{ zone.name }}"
     get_md5: false
   register: zone_tsig_file
   when: zone.allowed_tsig_keys is defined
 
-- name: "zone {{ zone.name }} : Generate missing TSIG Keys."
+- name: "primary zone {{ zone.name }} : Generate missing TSIG Keys."
   ansible.builtin.shell: "tsig-keygen -a {{ bind9_servers_tsig_algorithm }} {{
     zone.name }}.key > /etc/bind/tsig.{{ zone.name }}"
   when:
     - zone.allowed_tsig_keys is defined
     - not zone_tsig_file.stat.exists
 
-- name: "zone {{ zone.name }} : Get TSIG secrets."
-  ansible.builtin.command:
-    cmd: "sed -n 's/.*secret \"\\(.*\\)\";/\\1/p' /etc/bind/tsig.{{ zone.name }}"
-  changed_when: false
-  register: zone_tsig_secret
-  when:
-    - zone.allowed_tsig_keys is defined
-
-- name: "zone {{ zone.name }} : Get the current serial number from the zone file."
+- name: "primary zone {{ zone.name }} : Get the current serial number from the zone file."
   ansible.builtin.command:
     cmd: "sed -n 's#\\s*\\([[:digit:]]*\\)\\s*;\\s*serial#\\1#p' /var/cache/bind/local.db.{{ zone.name }}"
   changed_when: false
@@ -32,7 +24,7 @@
 # Use of 'force' here, prevents the file from being updated if it exists and the zone is dynamic.
 # A zone is considred dynamic when 'allowed_tsig_keys' is defined.
 # The setting seems backwards but is correct, as we want to force the update when dynamic is false.
-- name: "zone {{ zone.name }} : Create local.db.zone files, ignoring changes to dynamic zones."
+- name: "primary zone {{ zone.name }} : Create local.db.zone files, ignoring changes to dynamic zones."
   ansible.builtin.template:
     src: 'zone.file.j2'
     dest: "/var/cache/bind/local.db.{{ zone.name }}"
@@ -42,7 +34,7 @@
   notify: Reload bind9
   register: local_zone_file
 
-- name: "zone {{ zone.name }} : Update the serial number if zone file changed."
+- name: "primary zone {{ zone.name }} : Update the serial number if zone file changed."
   ansible.builtin.lineinfile:
     line: "\t\t\t\t{{ ansible_date_time.epoch }} ; serial"
     path: "/var/cache/bind/local.db.{{ zone.name }}"

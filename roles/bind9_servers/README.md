@@ -26,7 +26,6 @@ At a minimum, set the following to desired values.
 - `bind9_servers_domain_name` - See the sub-section below for details (including the default value).
 - `bind9_servers_email_address` - Email address portion of all SOA records (default: `domainreg.{{ bind9_servers_domain_name }}`).
 - `bind9_servers_group` - Ansible Group name for all name servers (default: `name_server`).
-- `bind9_servers_mname_group` - Ansible Group name for one and only one name server, to be the Primary name server (default: `origin`).
 - `bind9_servers_recursion` - Value for the `recursion` option in `/etc/bind/named.conf.options` (default: `true`).
 - `bind9_servers_tsig_algorithm` - Algorithm used for creating TSIG keys (default: `hmac-sha512`). Also used for `nsupdate` calls.
 - `bind9_servers_zone_default_expire` - Default expire value all for zone SOA records (default: `2419200` or 28 days).
@@ -34,8 +33,7 @@ At a minimum, set the following to desired values.
 - `bind9_servers_zone_default_refresh` - Default refresh value all for zone SOA records (default: `10800`).
 - `bind9_servers_zone_default_retry` - Default retry value all for zone SOA records (default: `3600`).
 - `bind9_servers_zone_default_ttl` - Default TTL value all for zone SOA records (default: `86400`).
-- `bind9_servers_zone_exclude_primary` - Exlude the primary name server from NS records when true (default: `false`).
-- `bind9_servers_zone_mname` - The MName value for all SOA records (default: `"{{ groups[bind9_servers_mname_group] | first }}.{{ bind9_servers_domain_name }}."`).
+- `bind9_servers_zone_mname` - The MName value for all SOA records (default: `"ns.{{ bind9_servers_domain_name }}."`).
 - `bind9_servers_zones` - See the sub-section below for details (default: `[]`).
 
 Special Variable Notes
@@ -66,6 +64,10 @@ Optional keys:
   When set, this designates the zone as `type forward;` and `forward only;`.
   Takes precedence over `primaries` if both are set.
 - `negative_cache_ttl` - Override `bind9_servers_zone_default_negative_cache_ttl` for the zone.
+- `ns` - Override `groups[bind9_servers_group]` for the NS records for the zone.
+  This allows a specific list of host names or FQDNs to be provided for each zone.
+  It can be used to not list the primary name server in the NS records or
+  to specify one of more load balancers for the NS records.
 - `primaries` - A list of IP addresses from which to transfer zone data.
   When set, this designates the zone as `type secondary;`.
   Ignored, if `forwarders` is also set.

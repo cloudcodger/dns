@@ -6,17 +6,6 @@
     cache_valid_time: 3600
     state: present
 
-- name: Make sure there is one and only one Primary Name Server.
-  ansible.builtin.assert:
-    that: groups[bind9_servers_mname_group] | intersect(ansible_play_batch) | length == 1
-    fail_msg: "Playbook requires the '{{ bind9_servers_mname_group }}' group to contain one and only one host."
-    quiet: true
-
-- name: Make sure bind9 service is started
-  ansible.builtin.service:
-    name: bind9
-    state: started
-
 - name: Update the Bind Options file.
   ansible.builtin.template:
     src: named.conf.options.j2
@@ -29,9 +18,16 @@
     dest: /etc/bind/named.conf.local
   notify: Reload bind9
 
+# - name: Make sure bind9 service is started
+#   ansible.builtin.service:
+#     name: bind9
+#     state: started
+
 # Using an include here to limit the amount of output during playbook execution.
+# Loop over each zone and only "include" the tasks when the host is the primary
+# name server for that zone (doesn't have forwarder or primaries defined).
 - name: Include the primary name server tasks.
-  ansible.builtin.include_tasks: 'zone.yml'
+  ansible.builtin.include_tasks: 'primary_zone.yml'
   loop: "{{ bind9_servers_zones }}"
   loop_control:
     label: "{{ zone.name }}"
@@ -46,7 +42,7 @@
   ansible.builtin.meta: flush_handlers
 
 # Using an include here for nested loops.
-- name: Include the primary name server tasks.
+- name: Include the zone_update tasks for dynamic zones.
   ansible.builtin.include_tasks: 'zone_updates.yml'
   loop: "{{ bind9_servers_zones }}"
   loop_control:

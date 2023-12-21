@@ -3,10 +3,6 @@
 
 bind9_servers_hosts: "{{ groups[bind9_servers_group] | intersect(ansible_play_batch) }}"
 
-bind9_servers_primary_name_server: "{{ groups[bind9_servers_mname_group] | intersect(ansible_play_batch) | first }}"
-bind9_servers_primary_name_server_ips: "{{
-  hostvars[bind9_servers_primary_name_server]['ansible_facts']['all_ipv4_addresses'] }}"
-
 # All the zones from RFC1918 that we want pointed to 'db.empty'.
 # If one of these is listed in `bind9_servers_zones`, it will not use 'db.empty'.
 bind9_servers_rfc1918_empty_zones:

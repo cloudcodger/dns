@@ -1,19 +1,13 @@
 ---
-- name: "zone {{ zone.name }} : Get TSIG secrets."
-  ansible.builtin.command:
+- name: "Zone_update : Get TSIG secrets for {{ zone.name }}."
+  ansible.builtin.command: # noqa: command-instead-of-module
     cmd: "sed -n 's/.*secret \"\\(.*\\)\";/\\1/p' /etc/bind/tsig.{{ zone.name }}"
   changed_when: false
   register: zone_tsig_secret
   when:
     - zone.allowed_tsig_keys is defined
 
-- name: Print the IP addresses of this host?
-  debug:
-    msg: |
-      "IP: {{ ansible_all_ipv4_addresses | first }}"
-      "key name: {{ zone.name }}.key"
-
-- name: "zone_update {{ zone.name }} : Update dynamic zone resource records using nsupdate."
+- name: "Zone_update : Update dynamic zone resource records using nsupdate for {{ zone.name }}."
   become: false
   community.general.nsupdate:
     key_name: '{{ zone.name }}.key'

@@ -10,18 +10,15 @@
   ansible.builtin.template:
     src: named.conf.options.j2
     dest: /etc/bind/named.conf.options
+    mode: "0644"
   notify: Reload bind9
 
 - name: Update the Bind Local file.
   ansible.builtin.template:
     src: named.conf.local.j2
     dest: /etc/bind/named.conf.local
+    mode: "0644"
   notify: Reload bind9
-
-# - name: Make sure bind9 service is started
-#   ansible.builtin.service:
-#     name: bind9
-#     state: started
 
 # Using an include here to limit the amount of output during playbook execution.
 # Loop over each zone and only "include" the tasks when the host is the primary

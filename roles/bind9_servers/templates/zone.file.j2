@@ -13,8 +13,8 @@ $TTL {{ bind9_servers_zone_default_ttl }}
 				{{ zone.negative_cache_ttl | default(bind9_servers_zone_default_negative_cache_ttl) }} ; minimum
 				)
 
-{# Create NS records for the name servers, minus the primary name server by default. #}
-{% for ns in zone.ns | default(groups[bind9_servers_group] | sort) %}
+{# Create NS records for the name servers. #}
+{% for ns in zone.ns | default(ansible_play_batch | sort) %}
 			NS	{{ ns }}{{ ('.' + bind9_servers_domain_name + '.') if not ns is search("\.") }}
 {% endfor %}
 

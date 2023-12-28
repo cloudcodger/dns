@@ -1,14 +1,11 @@
 ---
 # defaults file for bind9_servers
 
-# The domain name portion of the primary name server.
+# The domain name portion of the primary name server(s).
 bind9_servers_domain_name: "{{ bind9_servers_zones[0].name }}"
 
 # The email address to use for all zone files.
 bind9_servers_email_address: "domainreg.{{ bind9_servers_domain_name }}."
-
-# Ansible group containing all the name servers.
-bind9_servers_group: 'name_server'
 
 # Sets 'recursion' in options to yes (true) or no (false)
 bind9_servers_recursion: true
@@ -26,7 +23,7 @@ bind9_servers_zone_default_retry: '3600' # 1 hour
 bind9_servers_zone_default_ttl: '86400' # 86400 = 24 hours
 
 # This is the FQDN for the MName in the SOA record.
-bind9_servers_zone_mname: "ns.{{ bind9_servers_domain_name }}."
+bind9_servers_zone_mname: "{{ ansible_hostname }}.{{ bind9_servers_domain_name }}."
 
 # Provide a list of the zones for the name servers.
 # The name of the first zone in this list will be the default `bind9_servers_domain_name`.

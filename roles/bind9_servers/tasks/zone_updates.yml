@@ -20,7 +20,7 @@
     value: "{{ rr[3] }}"
     zone: "{{ zone.name }}"
   delegate_to: localhost
-  loop: "{{ vars[zone.records_var] if zone.allowed_tsig_keys is defined else [] }}"
+  loop: "{{ lookup('ansible.builtin.vars', zone.records_var) if zone.allowed_tsig_keys is defined else [] }}"
   vars:
     rr: "{{ item.split(';') }}"
   when:

@@ -19,8 +19,8 @@ $TTL {{ bind9_servers_zone_default_ttl }}
 {% endfor %}
 
 {# Create all records from the resource records variable for the zone. #}
-{% if zone.records_var is defined and vars[zone.records_var] is defined %}
-{%   for rr in vars[zone.records_var] %}
+{% if zone.records_var is defined and lookup('ansible.builtin.vars', zone.records_var) is defined %}
+{%   for rr in lookup('ansible.builtin.vars', zone.records_var) %}
 {%     set line=rr.split(';') %}
 {#          line[0] = label #}
 {#          line[1] = TTL #}

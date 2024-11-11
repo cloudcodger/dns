@@ -1,5 +1,9 @@
 # Change log
 
+# version 2.0.1
+
+- Fix, now using `lookup('ansible.builtin.vars', zone.records_var)`.
+
 # version 2.0.0
 
 - Changed how primary and secondary zones get configured.

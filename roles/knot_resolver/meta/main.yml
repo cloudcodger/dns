@@ -1,0 +1,17 @@
+galaxy_info:
+  author: Cloud Codger
+  description: Install and configure a set of Name Server Resolvers using knot resolver.
+  license: GPL-2.0-or-later
+  min_ansible_version: '2.10'
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+
+  galaxy_tags:
+    - knot
+    - dns
+    - infrastructure
+
+dependencies: []

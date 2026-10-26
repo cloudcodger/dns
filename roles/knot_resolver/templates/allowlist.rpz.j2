@@ -1,0 +1,6 @@
+$TTL 60
+@   IN  SOA  localhost. root.localhost. 1 1H 1H 1W 1H
+    IN  NS   localhost.
+{% for domain in knot_resolver_rpz_allowlist_domains | default([]) %}
+{{ domain }}  IN  CNAME  rpz-passthru.
+{% endfor %}

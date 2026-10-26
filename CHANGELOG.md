@@ -1,5 +1,10 @@
 # Change log
 
+# version 2.1.0
+
+- Added `knot_auth` and `knot_resolver` roles.
+- Fixed lint failures.
+
 # version 2.0.1
 
 - Fix, now using `lookup('ansible.builtin.vars', zone.records_var)`.

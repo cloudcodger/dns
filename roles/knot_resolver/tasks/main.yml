@@ -1,0 +1,90 @@
+---
+- name: Install Knot Resolver
+  ansible.builtin.apt:
+    name:
+      - knot-resolver
+    state: present
+    update_cache: true
+  tags: [install, knot_resolver]
+
+- name: Create RPZ directory
+  ansible.builtin.file:
+    path: "{{ knot_resolver_rpz_dir }}"
+    state: directory
+    owner: root
+    group: knot-resolver
+    mode: '0750'
+  tags: [config, knot_resolver]
+
+- name: Deploy Knot Resolver configuration
+  ansible.builtin.template:
+    src: kresd.conf.j2
+    dest: /etc/knot-resolver/kresd.conf
+    owner: knot-resolver
+    group: knot-resolver
+    mode: '0640'
+  notify: Restart kresd
+  tags: [config, knot_resolver]
+
+- name: Download RPZ blocklists
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ knot_resolver_rpz_dir }}/{{ item.name }}.rpz"
+    mode: '0640'
+    owner: root
+    group: knot-resolver
+    timeout: 120
+  loop: "{{ knot_resolver_rpz_blocklists }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: knot_resolver_rpz_downloads
+  # failed_when: false
+  retries: 3
+  delay: 5
+  until: knot_resolver_rpz_downloads is succeeded
+  tags: [rpz, knot_resolver]
+
+- name: Deploy local allowlist
+  ansible.builtin.template:
+    src: allowlist.rpz.j2
+    dest: "{{ knot_resolver_rpz_dir }}/allowlist.rpz"
+    owner: root
+    group: knot-resolver
+    mode: '0640'
+  tags: [rpz, knot_resolver]
+
+- name: Configure Auto-update items.
+  ansible.builtin.include_tasks: rpz_auto_update.yml
+  when: knot_resolver_rpz_auto_update
+
+# - name: Disable systemd-resolved
+#   ansible.builtin.systemd:
+#     name: systemd-resolved
+#     state: stopped
+#     enabled: false
+#   failed_when: false
+#   tags: [resolv, knot_resolver]
+
+# - name: Remove managed resolv.conf
+#   ansible.builtin.file:
+#     path: /etc/resolv.conf
+#     state: absent
+#   failed_when: false
+#   tags: [resolv, knot_resolver]
+
+# - name: Write /etc/resolv.conf pointing to Knot Resolver
+#   ansible.builtin.copy:
+#     content: |
+#       nameserver 127.0.0.1
+#       options edns0 trust-ad
+#     dest: /etc/resolv.conf
+#     mode: '0644'
+#   tags: [resolv, knot_resolver]
+
+- name: Start and enable Knot Resolver instances
+  ansible.builtin.systemd:
+    name: "kresd@{{ item }}"
+    state: started
+    enabled: true
+  loop: "{{ range(1, knot_resolver_instances + 1) | list }}"
+  tags: [service, knot_resolver]

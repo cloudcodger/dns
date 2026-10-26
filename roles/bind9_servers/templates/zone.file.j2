@@ -6,7 +6,7 @@
 ;
 $TTL {{ bind9_servers_zone_default_ttl }}
 @			IN SOA	{{ bind9_servers_zone_mname }} {{ bind9_servers_email_address }} (
-				{{ zone_serial.stdout | default(ansible_date_time.epoch) }} ; serial
+				{{ bind9_servers_reg_zone_serial.stdout | default(ansible_date_time.epoch) }} ; serial
 				{{ zone.refresh | default(bind9_servers_zone_default_refresh) }} ; refresh
 				{{ zone.retry | default(bind9_servers_zone_default_retry) }} ; retry
 				{{ zone.expire | default(bind9_servers_zone_default_expire) }} ; expire

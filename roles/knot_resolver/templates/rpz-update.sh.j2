@@ -1,0 +1,20 @@
+#!/bin/bash
+# RPZ blocklist updater — called by systemd timer
+set -euo pipefail
+
+RPZ_DIR="{{ knot_resolver_rpz_dir }}"
+LOG="/var/log/rpz-update.log"
+
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG"; }
+
+log "Starting RPZ update"
+
+{% for bl in knot_resolver_rpz_blocklists %}
+# {{ bl.name }}
+curl -sfL --max-time 120 "{{ bl.url }}" -o "${RPZ_DIR}/{{ bl.name }}.rpz.tmp" \
+    && mv "${RPZ_DIR}/{{ bl.name }}.rpz.tmp" "${RPZ_DIR}/{{ bl.name }}.rpz" \
+    && log "{{ bl.name }}: updated" \
+    || log "{{ bl.name }}: FAILED (keeping old)"
+{% endfor %}
+
+log "RPZ update complete"

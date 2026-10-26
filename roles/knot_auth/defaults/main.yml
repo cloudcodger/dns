@@ -1,0 +1,26 @@
+---
+knot_auth_acl:
+  - address: "127.0.0.0/8"
+knot_auth_base_domain: example.com
+knot_auth_identity: "{{ ansible_facts['fqdn'] }}"
+knot_auth_listen:
+  - "127.0.1.1@5353"
+  - "::1@5353"
+knot_auth_soa_email_address: "domainreg.{{ knot_auth_base_domain }}"
+knot_auth_soa_zone_mname: "{{ ansible_facts['hostname'] }}.{{ knot_auth_base_domain }}."
+knot_auth_storage: "/var/lib/knot/zones"
+knot_auth_zone_default_expire: '2419200' # 28 days
+knot_auth_zone_default_negative_cache_ttl: '60' # 1 minute
+knot_auth_zone_default_refresh: '10800' # 3 hours
+knot_auth_zone_default_retry: '3600' # 1 hour
+knot_auth_zone_default_ttl: '3600' # 1 hour
+knot_auth_zones: []
+  # An example of zones
+  # - domain: "mylan.lan"
+  #   file: "mylan.lan.zone"
+  #   dnssec_signing: true
+  #   records_var: "knot_auth_records_mylan_lan"
+  # - domain: "10.in-addr.arpa"
+  #   file: "10.in-addr.arpa.zone"
+  #   dnssec_signing: true
+  #   records_var: "knot_auth_records_mylan_lan"

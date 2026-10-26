@@ -1,0 +1,10 @@
+[Unit]
+Description=Update RPZ blocklists for Knot Resolver
+
+[Timer]
+OnCalendar={{ knot_resolver_rpz_update_schedule }}
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

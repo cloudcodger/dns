@@ -27,11 +27,11 @@
   ansible.builtin.include_tasks: 'primary_zone.yml'
   loop: "{{ bind9_servers_zones }}"
   loop_control:
-    label: "{{ zone.name }}"
-    loop_var: zone
+    label: "{{ bind9_servers_loop_zone.name }}"
+    loop_var: bind9_servers_loop_zone
   when:
-    - zone.forwarders is not defined
-    - zone.primaries is not defined
+    - bind9_servers_loop_zone.forwarders is not defined
+    - bind9_servers_loop_zone.primaries is not defined
 
 # Reloading the service inside the above loop doesn't work and
 # must be done before `nsupdate` will work.
@@ -43,9 +43,9 @@
   ansible.builtin.include_tasks: 'zone_updates.yml'
   loop: "{{ bind9_servers_zones }}"
   loop_control:
-    label: "{{ zone.name }}"
-    loop_var: zone
+    label: "{{ bind9_servers_loop_zone.name }}"
+    loop_var: bind9_servers_loop_zone
   when:
-    - zone.allowed_tsig_keys is defined
-    - zone.forwarders is not defined
-    - zone.primaries is not defined
+    - bind9_servers_loop_zone.allowed_tsig_keys is defined
+    - bind9_servers_loop_zone.forwarders is not defined
+    - bind9_servers_loop_zone.primaries is not defined

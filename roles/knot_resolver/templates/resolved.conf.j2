@@ -1,0 +1,6 @@
+[Resolve]
+DNS=127.0.0.1 {{ knot_resolver_fallback_dns | default('1.1.1.1') }}
+Domains=~.
+DNSSEC=allow-downgrade
+LLMNR=no
+MulticastDNS=no

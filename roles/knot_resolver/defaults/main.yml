@@ -1,0 +1,58 @@
+---
+knot_resolver_cache_size_mb: 200
+knot_resolver_instances: 2
+
+knot_resolver_internal_domains: []
+  # - "mylan.lan"
+  # - "10.in-addr.arpa"
+
+knot_resolver_lan_ip: "{{ ansible_facts['default_ipv4']['address'] }}"
+
+knot_resolver_listeners:
+  - addr: "127.0.0.1"
+    port: 53
+    kind: "dns"
+  - addr: "{{ knot_resolver_lan_ip }}"
+    port: 53
+    kind: "dns"
+  - addr: "127.0.0.1"
+    port: 853
+    kind: "tls"
+  - addr: "{{ knot_resolver_lan_ip }}"
+    port: 853
+    kind: "tls"
+
+knot_resolver_rpz_dir: "/etc/knot-resolver"
+
+knot_resolver_rpz_allowlist_domains: []
+knot_resolver_rpz_allowlist_name: "allowlist"
+knot_resolver_rpz_auto_update: false
+
+knot_resolver_rpz_blocklists:
+  - name: "hagezi-multi"
+    url: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/rpz/multi.txt"
+    policy: "DENY_MSG('blocked: ads/malware')"
+  - name: "hagezi-tif-1"
+    url: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/rpz/tif-1.txt"
+    policy: "DENY_MSG('blocked: threat intel')"
+  - name: "hagezi-tif-2"
+    url: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/rpz/tif-2.txt"
+    policy: "DENY_MSG('blocked: threat intel')"
+  - name: "hagezi-tif-ips"
+    url: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/rpz/tif-ips.txt"
+    policy: "DENY_MSG('blocked: threat intel')"
+  # Fake/phishing lookalike sites
+  - name: "hagezi-fake"
+    url: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/rpz/fake.txt"
+    policy: "DENY_MSG('blocked: fake site')"
+  - name: "oisd-ads"
+    url: "https://big.oisd.nl/rpz"
+    policy: "DENY_MSG('blocked: ads')"
+
+knot_resolver_rpz_update_schedule: "*-*-* 06:03:00"
+
+# Where to stub internal domains.
+# Same box:  "127.0.1.1@5353"
+# Different: "10.0.0.53@53"  (the auth server's LAN IP + port)
+knot_resolver_stub_servers:
+  - "127.0.1.1@5353"

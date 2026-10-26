@@ -1,0 +1,50 @@
+---
+- name: Install Knot DNS and Knot Resolver
+  ansible.builtin.apt:
+    name:
+      - knot
+      - knot-dnsutils
+    state: present
+    update_cache: true
+  tags: [install, knot_auth]
+
+- name: Create zone storage directory
+  ansible.builtin.file:
+    path: "{{ knot_auth_storage }}"
+    state: directory
+    owner: knot
+    group: knot
+    mode: '0750'
+  tags: [config, knot_auth]
+
+- name: Deploy Knot DNS configuration
+  ansible.builtin.template:
+    src: knot.conf.j2
+    dest: /etc/knot/knot.conf
+    owner: knot
+    group: knot
+    mode: '0640'
+  notify: Restart knot
+  tags: [config, knot_auth]
+
+- name: Process zone files
+  ansible.builtin.include_tasks: zone.yml
+  loop: "{{ knot_auth_zones }}"
+  loop_control:
+    label: "{{ knot_auth_loop_zone.domain }}"
+    loop_var: knot_auth_loop_zone
+  vars:
+    knot_auth_zone_comparator: "/var/tmp/{{ knot_auth_loop_zone.file |
+      default(knot_auth_loop_zone.domain + '.zone') }}"
+    knot_auth_zone_file: "{{ knot_auth_storage }}/{{ knot_auth_loop_zone.file |
+      default(knot_auth_loop_zone.domain + '.zone') }}"
+    knot_auth_zone_records_var: "{{ knot_auth_loop_zone.records_var |
+      default('knot_auth_zone_' + knot_auth_loop_zone.domain | replace('.', '_')) }}"
+  tags: [config, knot_auth, zones]
+
+- name: Start and enable Knot DNS
+  ansible.builtin.systemd:
+    name: knot
+    state: started
+    enabled: true
+  tags: [service, knot_auth]

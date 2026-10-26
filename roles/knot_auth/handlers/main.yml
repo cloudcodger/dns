@@ -1,0 +1,10 @@
+---
+- name: Reload knot
+  ansible.builtin.systemd:
+    name: knot
+    state: reloaded
+
+- name: Restart knot
+  ansible.builtin.systemd:
+    name: knot
+    state: restarted

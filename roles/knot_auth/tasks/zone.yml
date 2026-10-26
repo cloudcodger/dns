@@ -1,0 +1,34 @@
+---
+- name: Create stripped copy
+  ansible.builtin.shell:
+    cmd: >-
+      grep -v '^\s*[0-9]*\s*;\s*serial'
+      {{ knot_auth_zone_file }} > {{ knot_auth_zone_comparator }}
+  changed_when: false
+  failed_when: false
+
+- name: Template onto stripped copy
+  ansible.builtin.template:
+    src: zone.file.j2
+    dest: "{{ knot_auth_zone_comparator }}"
+    group: knot
+    owner: knot
+    mode: "0640"
+  register: knot_auth_reg_comp
+  vars:
+    knot_auth_zone_comparator_file: true
+
+- name: Apply full template if content changed
+  ansible.builtin.template:
+    src: zone.file.j2
+    dest: "{{ knot_auth_zone_file }}"
+    group: knot
+    owner: knot
+    mode: "0640"
+  notify: Reload knot
+  when: knot_auth_reg_comp is changed # noqa: no-handler
+
+- name: Cleanup
+  ansible.builtin.file:
+    path: "{{ knot_auth_zone_comparator }}"
+    state: absent

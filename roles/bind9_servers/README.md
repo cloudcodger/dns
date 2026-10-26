@@ -1,10 +1,8 @@
-Role `bind9_servers`
-=========
+# Role `bind9_servers`
 
 Install and configure ISC Bind9 on a Primary and zero or more Secondary name servers.
 
-Requirements
-------------
+# Requirements
 
 The below is required on the host executing `nsupdate` for any dynamic zones configured.
 
@@ -30,10 +28,9 @@ ctrl1			A	192.168.1.21
 ctrl2			A	192.168.1.22
 ```
 
-Role Variables
---------------
+# Role Variables
 
-### Required variables.
+## Required variables.
 
 The default values for the following variables will very likely not be desired or possibly even work.
 
@@ -41,7 +38,7 @@ At a minimum, set the following to desired values.
 
 `bind9_servers_zones`
 
-### All variables.
+## All variables.
 
 - `bind9_servers_domain_name` - See the sub-section below for details (including the default value).
 - `bind9_servers_email_address` - Email address portion of all SOA records (default: `domainreg.{{ bind9_servers_domain_name }}`).
@@ -55,16 +52,15 @@ At a minimum, set the following to desired values.
 - `bind9_servers_zone_mname` - The MName value for all SOA records (default: `{{ ansible_hostname }}.{{ bind9_servers_domain_name }}.`).
 - `bind9_servers_zones` - See the sub-section below for details (default: `[]`).
 
-Special Variable Notes
-----------------------
+# Special Variable Notes
 
-### `bind9_servers_domain_name`
+## `bind9_servers_domain_name`
 
 By default this domain name is used as part of `bind9_servers_email_address` and `bind9_servers_mname`.
 It is also appended to all NS records, unless they contain a `.` character.
 The default for this variable is the first zone name in the `bind9_servers_zones` list (see below).
 
-### `bind9_servers_zones`
+## `bind9_servers_zones`
 
 This variable must be a list of hashs that contain specific key/value pairs defining the zones to configure.
 
@@ -95,7 +91,7 @@ Optional keys:
 - `refresh` - Override `bind9_servers_zone_default_refresh` for the zone.
 - `retry` - Override `bind9_servers_zone_default_retry` for the zone.
 
-### `records_var` key under `bind9_servers_zones`
+## `records_var` key under `bind9_servers_zones`
 
 Set this to a variable name that will contain a list of the resource records for the zone.
 
@@ -108,7 +104,6 @@ Each Resource Record must be a `;` seperated string of values that represent the
 - Record Type (for example, `A`, `AAAA`, `PTR`, etc.)
 - Record Value (for example, if type is `A` this would be an IP address).
 
-Example Playbook
-----------------
+# Example Playbook
 
 See the `docs` directory for different example configurations.

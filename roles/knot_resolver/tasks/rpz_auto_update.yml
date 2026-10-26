@@ -1,0 +1,30 @@
+---
+- name: Deploy RPZ update script
+  ansible.builtin.template:
+    src: rpz-update.sh.j2
+    dest: /usr/local/bin/rpz-update.sh
+    mode: '0750'
+    owner: root
+    group: root
+  tags: [rpz, timer, knot_resolver]
+
+- name: Deploy RPZ update service unit
+  ansible.builtin.template:
+    src: rpz-update.service.j2
+    dest: /etc/systemd/system/rpz-update.service
+    mode: '0644'
+  tags: [rpz, timer, knot_resolver]
+
+- name: Deploy RPZ update timer unit
+  ansible.builtin.template:
+    src: rpz-update.timer.j2
+    dest: /etc/systemd/system/rpz-update.timer
+    mode: '0644'
+  tags: [rpz, timer, knot_resolver]
+
+- name: Enable and start RPZ update timer
+  ansible.builtin.systemd:
+    name: rpz-update.timer
+    state: started
+    enabled: true
+  tags: [rpz, timer, knot_resolver]

@@ -6,7 +6,7 @@ knot_auth_identity: "{{ ansible_facts['fqdn'] }}"
 knot_auth_listen:
   - "127.0.1.1@5353"
   - "::1@5353"
-knot_auth_soa_email_address: "domainreg.{{ knot_auth_base_domain }}"
+knot_auth_soa_email_address: "domainreg.{{ knot_auth_base_domain }}."
 knot_auth_soa_zone_mname: "{{ ansible_facts['hostname'] }}.{{ knot_auth_base_domain }}."
 knot_auth_storage: "/var/lib/knot/zones"
 knot_auth_zone_default_expire: '2419200' # 28 days

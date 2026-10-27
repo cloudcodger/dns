@@ -1,5 +1,9 @@
 # Change log
 
+# version 2.1.1
+
+- Added a missing `.` to `knot_auth_soa_email_address`.
+
 # version 2.1.0
 
 - Added `knot_auth` and `knot_resolver` roles.
